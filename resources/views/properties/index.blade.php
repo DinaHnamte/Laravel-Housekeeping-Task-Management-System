@@ -30,6 +30,9 @@
                         <h3 class="truncate text-xl font-semibold text-slate-900">
                             {{ $property->name ?? "Unnamed Property" }}</h3>
                         <p class="text-sm text-slate-500">Property Details</p>
+                        @if (auth()->user()->hasRole("Admin") && $property->user)
+                            <p class="text-xs text-slate-400">Owner: {{ $property->user->name }}</p>
+                        @endif
                     </div>
 
                     <!-- Property Stats -->

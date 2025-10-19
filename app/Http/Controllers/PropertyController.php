@@ -9,8 +9,21 @@ class PropertyController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
         $perPage = (int) ($request->get('per_page') ?? 10);
-        $properties = Property::with('rooms')->paginate($perPage);
+
+        // Filter properties based on user role
+        if ($user->hasRole('Admin')) {
+            // Admins can see all properties
+            $properties = Property::with('rooms', 'user')->paginate($perPage);
+        } elseif ($user->hasRole('Owner')) {
+            // Owners can only see their own properties
+            $properties = Property::with('rooms')->where('user_id', $user->id)->paginate($perPage);
+        } else {
+            // Other roles see no properties
+            $properties = collect()->paginate($perPage);
+        }
+
         return view('properties.index', compact('properties'));
     }
 
@@ -25,6 +38,9 @@ class PropertyController extends Controller
             'beds' => 'required|numeric|min:1',
             'baths' => 'required|numeric|min:1',
         ]);
+
+        // Assign property to the current user (Owner)
+        $validated['user_id'] = auth()->id();
 
         Property::create($validated);
 

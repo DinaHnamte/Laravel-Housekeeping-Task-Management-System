@@ -107,6 +107,29 @@ Route::prefix('properties')->middleware('permission:view:properties')->group(fun
         Route::delete('/{checklist}', [ChecklistController::class, 'destroy'])->middleware('permission:edit:checklists')->name('checklists.destroy');
     });
 
+    // Roles Management (Admin only)
+    Route::prefix('roles')->middleware('auth')->group(function () {
+        Route::get('/', [App\Http\Controllers\RoleController::class, 'index'])->name('roles.index');
+        Route::get('/create', [App\Http\Controllers\RoleController::class, 'create'])->name('roles.create');
+        Route::post('/', [App\Http\Controllers\RoleController::class, 'store'])->name('roles.store');
+        Route::get('/{role}', [App\Http\Controllers\RoleController::class, 'show'])->name('roles.show');
+        Route::get('/{role}/edit', [App\Http\Controllers\RoleController::class, 'edit'])->name('roles.edit');
+        Route::put('/{role}', [App\Http\Controllers\RoleController::class, 'update'])->name('roles.update');
+        Route::delete('/{role}', [App\Http\Controllers\RoleController::class, 'destroy'])->name('roles.destroy');
+    });
+
+    // Permissions Management (Admin only)
+    Route::prefix('permissions')->middleware('auth')->group(function () {
+        Route::get('/', [App\Http\Controllers\PermissionController::class, 'index'])->name('permissions.index');
+        Route::get('/create', [App\Http\Controllers\PermissionController::class, 'create'])->name('permissions.create');
+        Route::post('/', [App\Http\Controllers\PermissionController::class, 'store'])->name('permissions.store');
+        Route::get('/{permission}', [App\Http\Controllers\PermissionController::class, 'show'])->name('permissions.show');
+        Route::get('/{permission}/edit', [App\Http\Controllers\PermissionController::class, 'edit'])->name('permissions.edit');
+        Route::put('/{permission}', [App\Http\Controllers\PermissionController::class, 'update'])->name('permissions.update');
+        Route::delete('/{permission}', [App\Http\Controllers\PermissionController::class, 'destroy'])->name('permissions.destroy');
+        Route::post('/{permission}/assign-roles', [App\Http\Controllers\PermissionController::class, 'assignToRoles'])->name('permissions.assign-roles');
+    });
+
     // API Routes for AJAX
     Route::prefix('api')->group(function () {
         Route::get('/assignments/{assignment}/tasks', function($assignmentId) {

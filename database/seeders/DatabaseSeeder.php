@@ -58,12 +58,14 @@ class DatabaseSeeder extends Seeder
             'name' => 'Downtown Apartment',
             'beds' => 2,
             'baths' => 1,
+            'user_id' => $owner->id,
         ]);
 
         $property2 = Property::create([
             'name' => 'Beach House',
             'beds' => 4,
             'baths' => 3,
+            'user_id' => $owner->id,
         ]);
 
         // Create Rooms for Property 1

@@ -46,6 +46,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view:checklists',
             'edit:checklists',
             'submit:checklists',
+            'delete:checklists',
             // Images/Photos
             'view:images',
             'upload:images',
@@ -93,9 +94,13 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view:housekeepers',
                 'edit:housekeepers',
                 'delete:housekeepers',
-                // View all checklist submissions and uploaded photos
+                // Full access to checklists - view, edit, submit, and delete
                 'view:checklists',
+                'edit:checklists',
+                'submit:checklists',
+                'delete:checklists',
                 'view:images',
+                'upload:images',
                 'view:calendar',
             ],
             'Owner' => [
