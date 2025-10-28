@@ -20,7 +20,8 @@
         </div>
 
         <!-- Form -->
-        <div class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50">
+        <div
+            class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50">
             <div class="p-6">
                 <form action="{{ route("checklists.update", $checklist) }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -62,12 +63,13 @@
                         <!-- Status -->
                         <div>
                             <label class="mb-2 block text-sm font-medium text-slate-700">Status</label>
-                            <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 @error('checked_off') border-red-500 ring-2 ring-red-200 @enderror"
+                            <select
+                                class="@error("checked_off") border-red-500 ring-2 ring-red-200 @enderror w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 name="checked_off">
-                                <option value="0" {{ !$checklist->checked_off ? 'selected' : '' }}>In Progress</option>
-                                <option value="1" {{ $checklist->checked_off ? 'selected' : '' }}>Completed</option>
+                                <option value="0" {{ !$checklist->checked_off ? "selected" : "" }}>In Progress</option>
+                                <option value="1" {{ $checklist->checked_off ? "selected" : "" }}>Completed</option>
                             </select>
-                            @error('checked_off')
+                            @error("checked_off")
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -78,10 +80,10 @@
                                 Start Time
                             </label>
                             <input type="datetime-local"
-                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 @error('time_date_stamp_start') border-red-500 ring-2 ring-red-200 @enderror"
+                                class="@error("time_date_stamp_start") border-red-500 ring-2 ring-red-200 @enderror w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 id="time_date_stamp_start" name="time_date_stamp_start"
-                                value="{{ $checklist->time_date_stamp_start ? $checklist->time_date_stamp_start->format('Y-m-d\TH:i') : '' }}">
-                            @error('time_date_stamp_start')
+                                value="{{ $checklist->time_date_stamp_start ? $checklist->time_date_stamp_start->format("Y-m-d\TH:i") : "" }}">
+                            @error("time_date_stamp_start")
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -92,10 +94,10 @@
                                 End Time
                             </label>
                             <input type="datetime-local"
-                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 @error('time_date_stamp_end') border-red-500 ring-2 ring-red-200 @enderror"
+                                class="@error("time_date_stamp_end") border-red-500 ring-2 ring-red-200 @enderror w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 id="time_date_stamp_end" name="time_date_stamp_end"
-                                value="{{ $checklist->time_date_stamp_end ? $checklist->time_date_stamp_end->format('Y-m-d\TH:i') : '' }}">
-                            @error('time_date_stamp_end')
+                                value="{{ $checklist->time_date_stamp_end ? $checklist->time_date_stamp_end->format("Y-m-d\TH:i") : "" }}">
+                            @error("time_date_stamp_end")
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -105,9 +107,10 @@
                             <label for="notes" class="mb-2 block text-sm font-medium text-slate-700">
                                 Notes
                             </label>
-                            <textarea class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 @error('notes') border-red-500 ring-2 ring-red-200 @enderror"
-                                id="notes" name="notes" rows="4" placeholder="Add any additional notes...">{{ old('notes', $checklist->notes) }}</textarea>
-                            @error('notes')
+                            <textarea
+                                class="@error("notes") border-red-500 ring-2 ring-red-200 @enderror w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                id="notes" name="notes" rows="4" placeholder="Add any additional notes...">{{ old("notes", $checklist->notes) }}</textarea>
+                            @error("notes")
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -118,9 +121,10 @@
                                 Latitude
                             </label>
                             <input type="number" step="any"
-                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 @error('latitude') border-red-500 ring-2 ring-red-200 @enderror"
-                                id="latitude" name="latitude" value="{{ old('latitude', $checklist->latitude) }}" placeholder="Auto-detect">
-                            @error('latitude')
+                                class="@error("latitude") border-red-500 ring-2 ring-red-200 @enderror w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                id="latitude" name="latitude" value="{{ old("latitude", $checklist->latitude) }}"
+                                placeholder="Auto-detect">
+                            @error("latitude")
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -130,9 +134,10 @@
                                 Longitude
                             </label>
                             <input type="number" step="any"
-                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 @error('longitude') border-red-500 ring-2 ring-red-200 @enderror"
-                                id="longitude" name="longitude" value="{{ old('longitude', $checklist->longitude) }}" placeholder="Auto-detect">
-                            @error('longitude')
+                                class="@error("longitude") border-red-500 ring-2 ring-red-200 @enderror w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                id="longitude" name="longitude" value="{{ old("longitude", $checklist->longitude) }}"
+                                placeholder="Auto-detect">
+                            @error("longitude")
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -142,9 +147,8 @@
                             <div class="lg:col-span-2">
                                 <label class="mb-2 block text-sm font-medium text-slate-700">Current Photo</label>
                                 <div class="relative overflow-hidden rounded-lg border border-slate-200">
-                                    <img src="{{ Storage::url($checklist->image_link) }}" 
-                                         alt="Current task photo" 
-                                         class="h-48 w-full object-cover">
+                                    <img src="{{ Storage::url($checklist->image_link) }}" alt="Current task photo"
+                                        class="h-48 w-full object-cover">
                                 </div>
                             </div>
                         @endif
@@ -158,10 +162,12 @@
                                     Upload Photo
                                 @endif
                             </label>
-                            <input type="file" accept="image/*"
-                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 @error('photo') border-red-500 ring-2 ring-red-200 @enderror"
+                            <input type="file" accept="image/*" capture="environment"
+                                class="@error("photo") border-red-500 ring-2 ring-red-200 @enderror w-full rounded-lg border border-slate-300 px-3 py-2 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 id="photo" name="photo">
-                            @error('photo')
+                            <p class="mt-1 text-xs text-slate-500">You can take a photo with your camera or select from
+                                gallery</p>
+                            @error("photo")
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -176,7 +182,8 @@
                         <button type="submit"
                             class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
                             </svg>
                             Update Checklist
                         </button>
