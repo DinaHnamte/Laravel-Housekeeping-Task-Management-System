@@ -94,11 +94,10 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view:housekeepers',
                 'edit:housekeepers',
                 'delete:housekeepers',
-                // Full access to checklists - view, edit, submit, and delete
+                // Checklists - Admins should be able to view and submit checklists
                 'view:checklists',
                 'edit:checklists',
                 'submit:checklists',
-                'delete:checklists',
                 'view:images',
                 'upload:images',
                 'view:calendar',
@@ -106,6 +105,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'Owner' => [
                 // Add/edit housekeepers
                 'create:housekeepers',
+                'view:housekeepers',
                 'edit:housekeepers',
                 // Add/edit properties, rooms, and tasks
                 'create:properties',

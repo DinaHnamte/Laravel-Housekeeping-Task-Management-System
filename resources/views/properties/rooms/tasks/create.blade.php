@@ -14,7 +14,8 @@
         </div>
 
         <div class="rounded-2xl border border-slate-200/50 bg-white/80 p-8 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
-            <form action="{{ route("properties.rooms.tasks.store", [$property, $room]) }}" method="POST" class="space-y-6">
+            <form action="{{ route("properties.rooms.tasks.store", [$property, $room]) }}" method="POST"
+                enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <!-- Task Description -->
@@ -59,6 +60,18 @@
                     <p class="text-sm text-slate-500">Check this if this task should be a default task for this room type
                     </p>
                     @error("is_default")
+                        <p class="text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Task Image Upload -->
+                <div class="space-y-2">
+                    <label for="task_image" class="block text-sm font-semibold text-slate-700">Task Reference Image</label>
+                    <input type="file" id="task_image" name="task_image" accept="image/*"
+                        class="@error("task_image") border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 transition-all duration-200 focus:border-slate-500 focus:ring-2 focus:ring-slate-500/20">
+                    <p class="text-sm text-slate-500">Upload a reference image to show housekeepers how the room should look
+                        (optional)</p>
+                    @error("task_image")
                         <p class="text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

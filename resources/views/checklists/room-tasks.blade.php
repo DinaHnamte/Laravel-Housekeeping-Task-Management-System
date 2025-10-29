@@ -1,6 +1,6 @@
 @extends("layouts.sidebar")
 
-@section("title", $room->name . " - Task Checklist")
+@section("title", $room->name . " - Tasks")
 
 @section("sidebar-content")
     <div class="space-y-6">
@@ -8,10 +8,10 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-3xl font-bold text-transparent">
-                    {{ $room->name }} - Task Checklist</h1>
+                    {{ $room->name }} - Tasks</h1>
                 <p class="mt-2 text-sm text-slate-600">
-                    Property: {{ $assignment->property->name }} |
-                    Date: {{ $assignment->assignment_date->format("M d, Y") }}
+                    Property: {{ $checklist->property->name }} |
+                    Date: {{ $checklist->assignment_date->format("M d, Y") }}
                 </p>
             </div>
             <div class="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
@@ -41,14 +41,21 @@
         </div>
 
         <!-- Tasks Form -->
-        <form id="roomChecklistForm" action="{{ route("checklists.store") }}" method="POST" enctype="multipart/form-data">
+        <form id="roomTasksForm" action="{{ route("checklists.tasks.store") }}" method="POST"
+            enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
+            <input type="hidden" name="checklist_id" value="{{ $checklist->id }}">
+            <input type="hidden" name="room_id" value="{{ $room->id }}">
 
             <div class="grid gap-6 sm:grid-cols-2">
                 @foreach ($tasks as $task)
                     @php
-                        $existingChecklist = $existingChecklists->get($task->id);
+                        $taskPivot = $checklist->tasks->where("id", $task->id)->first()?->pivot;
+                        $isCompleted = $taskPivot->completed ?? false;
+                        $existingNotes = $taskPivot->notes ?? "";
+                        $existingPhoto = $taskPivot->photo ?? null;
+                        $existingLatitude = $taskPivot->latitude ?? null;
+                        $existingLongitude = $taskPivot->longitude ?? null;
                     @endphp
                     <div class="task-card group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50"
                         data-task-id="{{ $task->id }}">
@@ -69,7 +76,7 @@
                                     class="task-checkbox h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
                                     type="checkbox" id="task_{{ $task->id }}"
                                     name="tasks[{{ $task->id }}][completed]" value="1"
-                                    {{ $existingChecklist && $existingChecklist->checked_off ? "checked" : "" }}>
+                                    {{ $isCompleted ? "checked" : "" }}>
                                 <label class="ml-2 text-sm font-medium text-slate-700" for="task_{{ $task->id }}">
                                     Complete
                                 </label>
@@ -86,7 +93,7 @@
                             <textarea
                                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                                 id="notes_{{ $task->id }}" name="tasks[{{ $task->id }}][notes]" rows="3"
-                                placeholder="Add any notes about this task...">{{ $existingChecklist ? $existingChecklist->notes : "" }}</textarea>
+                                placeholder="Add any notes about this task...">{{ $existingNotes }}</textarea>
                         </div>
 
                         <!-- Photo Section -->
@@ -130,10 +137,9 @@
                                 <p class="mt-1 text-xs text-green-600">Photo selected</p>
                             </div>
 
-                            @if ($existingChecklist && $existingChecklist->image_link)
+                            @if ($existingPhoto)
                                 <div class="mt-3">
-                                    <img src="{{ asset("storage/" . $existingChecklist->image_link) }}"
-                                        alt="Current photo"
+                                    <img src="{{ asset("storage/" . $existingPhoto) }}" alt="Current photo"
                                         class="h-24 w-24 rounded-lg border border-slate-200 object-cover">
                                     <p class="mt-1 text-xs text-slate-500">Current photo</p>
                                 </div>
@@ -150,8 +156,7 @@
                                 <input type="number" step="any"
                                     class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                                     id="latitude_{{ $task->id }}" name="tasks[{{ $task->id }}][latitude]"
-                                    value="{{ $existingChecklist ? $existingChecklist->latitude : "" }}"
-                                    placeholder="Auto-detect">
+                                    value="{{ $existingLatitude ?? "" }}" placeholder="Auto-detect">
                             </div>
                             <div>
                                 <label for="longitude_{{ $task->id }}"
@@ -161,8 +166,7 @@
                                 <input type="number" step="any"
                                     class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                                     id="longitude_{{ $task->id }}" name="tasks[{{ $task->id }}][longitude]"
-                                    value="{{ $existingChecklist ? $existingChecklist->longitude : "" }}"
-                                    placeholder="Auto-detect">
+                                    value="{{ $existingLongitude ?? "" }}" placeholder="Auto-detect">
                             </div>
                         </div>
 
@@ -170,9 +174,8 @@
                         <div class="mt-4 border-t border-slate-200 pt-4">
                             <button type="button"
                                 class="complete-task-btn inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-slate-400"
-                                data-task-id="{{ $task->id }}"
-                                {{ $existingChecklist && $existingChecklist->checked_off ? "disabled" : "" }}>
-                                @if ($existingChecklist && $existingChecklist->checked_off)
+                                data-task-id="{{ $task->id }}" {{ $isCompleted ? "disabled" : "" }}>
+                                @if ($isCompleted)
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -193,7 +196,7 @@
 
             <!-- Form Actions -->
             <div class="flex items-center justify-between">
-                <a href="{{ route("checklists.start", $assignment) }}"
+                <a href="{{ route("checklists.start", $checklist) }}"
                     class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -354,8 +357,8 @@
                     // Create form data for this specific task
                     const formData = new FormData();
                     formData.append('_token', document.querySelector('input[name="_token"]').value);
-                    formData.append('assignment_id', document.querySelector(
-                        'input[name="assignment_id"]').value);
+                    formData.append('checklist_id', document.querySelector(
+                        'input[name="checklist_id"]').value);
                     formData.append('tasks[' + taskId + '][task_id]', taskId);
                     formData.append('tasks[' + taskId + '][completed]', '1');
                     formData.append('tasks[' + taskId + '][notes]', notesInput.value);
@@ -372,7 +375,7 @@
                         '<svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Completing...';
 
                     // Submit individual task
-                    fetch('{{ route("checklists.store") }}', {
+                    fetch('{{ route("checklists.tasks.store") }}', {
                             method: 'POST',
                             body: formData,
                             headers: {
@@ -448,7 +451,7 @@
             });
 
             // Form validation
-            document.getElementById('roomChecklistForm').addEventListener('submit', function(e) {
+            document.getElementById('roomTasksForm').addEventListener('submit', function(e) {
                 const checkedTasks = document.querySelectorAll('.task-checkbox:checked');
                 let hasErrors = false;
                 let errorMessages = [];

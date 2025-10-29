@@ -11,6 +11,14 @@
             <p class="mt-2 text-sm text-slate-600">View and manage task information</p>
         </div>
 
+        <!-- Task Image -->
+        @if ($task->image)
+            <div class="mb-8 overflow-hidden rounded-2xl shadow-xl">
+                <img src="{{ asset("storage/" . $task->image->uri) }}" alt="{{ $task->task }}"
+                    class="h-64 w-full object-cover sm:h-96">
+            </div>
+        @endif
+
         <div class="grid gap-6 lg:grid-cols-3">
             <!-- Task Information Card -->
             <div class="lg:col-span-2">

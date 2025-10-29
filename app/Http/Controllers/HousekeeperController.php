@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Assignment;
 use App\Models\Checklist;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,66 +19,64 @@ class HousekeeperController extends Controller
             abort(403, 'Access denied. Housekeeper role required.');
         }
 
-        // Get housekeeper's assignments
-        $assignments = Assignment::where('user_id', $user->id)
-            ->with('property')
+        // Get housekeeper's checklists (assignments)
+        $assignments = Checklist::where('user_id', $user->id)
+            ->with(['property', 'tasks'])
             ->orderBy('assignment_date', 'desc')
             ->get();
 
         // Get today's assignments
-        $todayAssignments = $assignments->where('assignment_date', today());
+        $todayAssignments = $assignments->filter(function($checklist) {
+            return $checklist->assignment_date && $checklist->assignment_date->isToday();
+        });
 
-        // Get pending assignments
-        $pendingAssignments = $assignments->where('status', 'pending');
+        // Get pending assignments (upcoming, not yet started)
+        $pendingAssignments = $assignments->filter(function($checklist) {
+            return $checklist->status === 'pending' || ($checklist->assignment_date && $checklist->assignment_date->isFuture());
+        });
 
         // Get completed assignments
-        $completedAssignments = $assignments->where('status', 'completed');
+        $completedChecklists = $assignments->where('status', 'completed');
 
         // Get housekeeper's checklist progress
-        $checklists = Checklist::where('user_id', $user->id)
-            ->with(['property', 'room', 'task'])
-            ->latest()
-            ->limit(10)
-            ->get();
-
-        // Calculate progress statistics
         $totalTasks = 0;
         $completedTasks = 0;
 
-        foreach ($assignments as $assignment) {
-            $property = $assignment->property;
-            $rooms = $property->rooms()->with('tasks')->get();
-
-            foreach ($rooms as $room) {
-                $totalTasks += $room->tasks->count();
-
-                // Count completed tasks for this room
-                $completedTasks += Checklist::where('user_id', $user->id)
-                    ->where('property_id', $assignment->property_id)
-                    ->where('room_id', $room->id)
-                    ->where('checked_off', true)
-                    ->count();
-            }
+        foreach ($assignments as $checklist) {
+            $checklist->load('tasks');
+            $totalTasks += $checklist->tasks->count();
+            $completedTasks += $checklist->completedTasks()->count();
         }
 
         $progressPercentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
 
+        // For recent progress table, we'll get checklist tasks with their room info
+        $recentChecklists = Checklist::where('user_id', $user->id)
+            ->with(['property', 'tasks.room'])
+            ->orderBy('assignment_date', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Set checklists variable for backward compatibility
+        $checklists = $recentChecklists;
+
         return view('housekeeper.dashboard', compact(
+            'checklists', // For backward compatibility in view
             'assignments',
             'todayAssignments',
             'pendingAssignments',
-            'completedAssignments',
-            'checklists',
+            'completedChecklists',
             'totalTasks',
             'completedTasks',
-            'progressPercentage'
+            'progressPercentage',
+            'recentChecklists'
         ));
     }
 
     /**
-     * Show housekeeper's tasks for a specific assignment
+     * Show housekeeper's tasks for a specific checklist
      */
-    public function showTasks(Assignment $assignment): View
+    public function showTasks(Checklist $checklist): View
     {
         $user = auth()->user();
 
@@ -87,21 +84,18 @@ class HousekeeperController extends Controller
             abort(403, 'Access denied. Housekeeper role required.');
         }
 
-        // Verify the housekeeper is assigned to this assignment
-        if ($assignment->user_id !== $user->id) {
+        // Verify the housekeeper is assigned to this checklist
+        if ($checklist->user_id !== $user->id) {
             abort(403, 'You are not assigned to this property.');
         }
 
         // Get all rooms and tasks for this property
-        $property = $assignment->property;
+        $property = $checklist->property;
         $rooms = $property->rooms()->with('tasks')->get();
 
-        // Get existing checklists for this assignment
-        $existingChecklists = Checklist::where('user_id', $user->id)
-            ->where('property_id', $assignment->property_id)
-            ->get()
-            ->groupBy('room_id');
+        // Load checklist with tasks and pivot data
+        $checklist->load('tasks');
 
-        return view('housekeeper.tasks', compact('assignment', 'property', 'rooms', 'existingChecklists'));
+        return view('housekeeper.tasks', compact('checklist', 'property', 'rooms'));
     }
 }

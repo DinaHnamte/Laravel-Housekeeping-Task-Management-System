@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Property;
 use App\Models\Room;
 use App\Models\Task;
+use App\Models\Image;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class TaskController extends Controller
@@ -16,7 +19,7 @@ class TaskController extends Controller
      */
     public function index(Property $property, Room $room): View
     {
-        $tasks = $room->tasks()->paginate(10);
+        $tasks = $room->tasks()->with('image')->paginate(10);
         return view('properties.rooms.tasks.index', compact('property', 'room', 'tasks'));
     }
 
@@ -36,11 +39,26 @@ class TaskController extends Controller
         $validated = $request->validate([
             'task' => 'required|string|max:255',
             'is_default' => 'nullable|boolean',
+            'task_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $validated['property_id'] = $property->id;
         $validated['room_id'] = $room->id;
         $validated['is_default'] = $request->has('is_default');
+
+        // Handle task image upload
+        if ($request->hasFile('task_image')) {
+            $image = $request->file('task_image');
+            $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('images/tasks', $filename, 'public');
+
+            $imageRecord = Image::create([
+                'uri' => $path,
+                'name' => $image->getClientOriginalName(),
+            ]);
+
+            $validated['image_id'] = $imageRecord->id;
+        }
 
         $room->tasks()->create($validated);
 
@@ -54,6 +72,7 @@ class TaskController extends Controller
      */
     public function show(Property $property, Room $room, Task $task): View
     {
+        $task->load('image');
         return view('properties.rooms.tasks.show', compact('property', 'room', 'task'));
     }
 
@@ -62,6 +81,7 @@ class TaskController extends Controller
      */
     public function edit(Property $property, Room $room, Task $task): View
     {
+        $task->load('image');
         return view('properties.rooms.tasks.edit', compact('property', 'room', 'task'));
     }
 
@@ -73,9 +93,33 @@ class TaskController extends Controller
         $validated = $request->validate([
             'task' => 'required|string|max:255',
             'is_default' => 'nullable|boolean',
+            'task_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $validated['is_default'] = $request->has('is_default');
+
+        // Handle task image upload
+        if ($request->hasFile('task_image')) {
+            // Delete old image if exists
+            if ($task->image_id) {
+                $oldImage = Image::find($task->image_id);
+                if ($oldImage && Storage::disk('public')->exists($oldImage->uri)) {
+                    Storage::disk('public')->delete($oldImage->uri);
+                    $oldImage->delete();
+                }
+            }
+
+            $image = $request->file('task_image');
+            $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('images/tasks', $filename, 'public');
+
+            $imageRecord = Image::create([
+                'uri' => $path,
+                'name' => $image->getClientOriginalName(),
+            ]);
+
+            $validated['image_id'] = $imageRecord->id;
+        }
 
         $task->update($validated);
 

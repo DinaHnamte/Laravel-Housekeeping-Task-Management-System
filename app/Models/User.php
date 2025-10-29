@@ -59,11 +59,6 @@ class User extends Authenticatable
         return $this->hasMany(Checklist::class);
     }
 
-    public function assignments(): HasMany
-    {
-        return $this->hasMany(Assignment::class);
-    }
-
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class);

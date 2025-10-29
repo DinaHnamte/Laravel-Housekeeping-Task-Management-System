@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->unsignedBigInteger('beds');
             $table->unsignedBigInteger('baths');
+            $table->unsignedBigInteger('header_image_id')->nullable();
             $table->timestamps();
         });
     }

@@ -4,16 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Image extends Model
 {
     protected $fillable = [
         'uri',
         'name',
+        'imageable_type',
+        'imageable_id',
     ];
 
-    public function Checklist(): BelongsTo
+    public function imageable(): MorphTo
     {
-        return $this->belongsTo(Checklist::class);
+        return $this->morphTo();
     }
 }

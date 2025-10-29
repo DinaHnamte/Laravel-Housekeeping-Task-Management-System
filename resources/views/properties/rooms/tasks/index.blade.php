@@ -27,55 +27,67 @@
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             @forelse ($tasks as $task)
                 <div
-                    class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50">
-                    <!-- Task Header -->
-                    <div class="mb-4">
-                        <h3 class="truncate text-lg font-semibold text-slate-900">{{ $task->task }}</h3>
-                        <p class="text-sm text-slate-500">Task Details</p>
-                    </div>
+                    class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50">
 
-                    <!-- Task Status -->
-                    <div class="mb-4">
-                        <div class="flex items-center space-x-2">
-                            @if ($task->is_default)
-                                <span
-                                    class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                                    <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Default Task
-                                </span>
-                            @else
-                                <span
-                                    class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
-                                    Custom Task
-                                </span>
-                            @endif
+                    <!-- Task Image -->
+                    @if ($task->image)
+                        <div class="h-32 overflow-hidden">
+                            <img src="{{ asset("storage/" . $task->image->uri) }}" alt="{{ $task->task }}"
+                                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
                         </div>
-                    </div>
+                    @endif
 
-                    <!-- Actions -->
-                    <div class="flex space-x-2">
-                        <a href="{{ route("properties.rooms.tasks.edit", [$property, $room, $task]) }}"
-                            class="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
-                            Edit
-                        </a>
-                        <a href="{{ route("properties.rooms.tasks.show", [$property, $room, $task]) }}"
-                            class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
-                            View
-                        </a>
-                        <form action="{{ route("properties.rooms.tasks.destroy", [$property, $room, $task]) }}"
-                            method="POST" class="flex-1">
-                            @csrf
-                            @method("DELETE")
-                            <button type="submit"
-                                class="w-full rounded-lg bg-red-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-red-700"
-                                onclick="return confirm('Are you sure you want to delete this task?')">
-                                Delete
-                            </button>
-                        </form>
+                    <!-- Task Content -->
+                    <div class="p-6">
+                        <!-- Task Header -->
+                        <div class="mb-4">
+                            <h3 class="truncate text-lg font-semibold text-slate-900">{{ $task->task }}</h3>
+                            <p class="text-sm text-slate-500">Task Details</p>
+                        </div>
+
+                        <!-- Task Status -->
+                        <div class="mb-4">
+                            <div class="flex items-center space-x-2">
+                                @if ($task->is_default)
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                                        <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        Default Task
+                                    </span>
+                                @else
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
+                                        Custom Task
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex space-x-2">
+                            <a href="{{ route("properties.rooms.tasks.edit", [$property, $room, $task]) }}"
+                                class="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
+                                Edit
+                            </a>
+                            <a href="{{ route("properties.rooms.tasks.show", [$property, $room, $task]) }}"
+                                class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
+                                View
+                            </a>
+                            <form action="{{ route("properties.rooms.tasks.destroy", [$property, $room, $task]) }}"
+                                method="POST" class="flex-1">
+                                @csrf
+                                @method("DELETE")
+                                <button type="submit"
+                                    class="w-full rounded-lg bg-red-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-red-700"
+                                    onclick="return confirm('Are you sure you want to delete this task?')">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @empty

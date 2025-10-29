@@ -26,72 +26,85 @@
         <div class="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             @forelse ($properties as $property)
                 <div
-                    class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50 sm:p-6">
-                    <!-- Property Header -->
-                    <div class="mb-3 sm:mb-4">
-                        <h3 class="truncate text-lg font-semibold text-slate-900 sm:text-xl">
-                            {{ $property->name ?? "Unnamed Property" }}</h3>
-                        <p class="text-xs text-slate-500 sm:text-sm">Property Details</p>
-                        @if (auth()->user()->hasRole("Admin") && $property->user)
-                            <p class="text-xs text-slate-400">Owner: {{ $property->user->name }}</p>
-                        @endif
-                    </div>
+                    class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50">
 
-                    <!-- Property Stats -->
-                    <div class="mb-4 grid grid-cols-3 gap-2 sm:mb-6 sm:gap-4">
-                        <div class="text-center">
-                            <div
-                                class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
-                                <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                </svg>
-                            </div>
-                            <div class="text-lg font-bold text-slate-900 sm:text-2xl">{{ $property->beds ?? "0" }}</div>
-                            <div class="text-xs text-slate-500">Beds</div>
+                    <!-- Property Header Image -->
+                    @if ($property->headerImage)
+                        <div class="h-32 overflow-hidden sm:h-48">
+                            <img src="{{ asset("storage/" . $property->headerImage->uri) }}" alt="{{ $property->name }}"
+                                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
                         </div>
-                        <div class="text-center">
-                            <div
-                                class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
-                                <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M10.5 3L12 2l1.5 1H21v6H3V3h7.5z" />
-                                </svg>
-                            </div>
-                            <div class="text-lg font-bold text-slate-900 sm:text-2xl">{{ $property->baths ?? "0" }}</div>
-                            <div class="text-xs text-slate-500">Baths</div>
-                        </div>
-                        <div class="text-center">
-                            <div
-                                class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
-                                <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                            </div>
-                            <div class="text-lg font-bold text-slate-900 sm:text-2xl">
-                                {{ isset($property->rooms) ? $property->rooms->count() : "0" }}</div>
-                            <div class="text-xs text-slate-500">Rooms</div>
-                        </div>
-                    </div>
+                    @endif
 
-                    <!-- Actions -->
-                    <div class="flex flex-col gap-2 sm:flex-row sm:space-x-2">
-                        <a href="{{ route("properties.show", $property) }}"
-                            class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
-                            View Details
-                        </a>
-                        <a href="{{ route("properties.edit", $property) }}"
-                            class="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
-                            Edit
-                        </a>
-                        <a href="{{ route("properties.rooms.index", $property) }}"
-                            class="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-900">
-                            Manage Rooms
-                        </a>
+                    <!-- Property Content -->
+                    <div class="p-4 sm:p-6">
+                        <!-- Property Header -->
+                        <div class="mb-3 sm:mb-4">
+                            <h3 class="truncate text-lg font-semibold text-slate-900 sm:text-xl">
+                                {{ $property->name ?? "Unnamed Property" }}</h3>
+                            <p class="text-xs text-slate-500 sm:text-sm">Property Details</p>
+                            @if (auth()->user()->hasRole("Admin") && $property->user)
+                                <p class="text-xs text-slate-400">Owner: {{ $property->user->name }}</p>
+                            @endif
+                        </div>
+
+                        <!-- Property Stats -->
+                        <div class="mb-4 grid grid-cols-3 gap-2 sm:mb-6 sm:gap-4">
+                            <div class="text-center">
+                                <div
+                                    class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
+                                    <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                    </svg>
+                                </div>
+                                <div class="text-lg font-bold text-slate-900 sm:text-2xl">{{ $property->beds ?? "0" }}</div>
+                                <div class="text-xs text-slate-500">Beds</div>
+                            </div>
+                            <div class="text-center">
+                                <div
+                                    class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
+                                    <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M10.5 3L12 2l1.5 1H21v6H3V3h7.5z" />
+                                    </svg>
+                                </div>
+                                <div class="text-lg font-bold text-slate-900 sm:text-2xl">{{ $property->baths ?? "0" }}
+                                </div>
+                                <div class="text-xs text-slate-500">Baths</div>
+                            </div>
+                            <div class="text-center">
+                                <div
+                                    class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
+                                    <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <div class="text-lg font-bold text-slate-900 sm:text-2xl">
+                                    {{ isset($property->rooms) ? $property->rooms->count() : "0" }}</div>
+                                <div class="text-xs text-slate-500">Rooms</div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:space-x-2">
+                            <a href="{{ route("properties.show", $property) }}"
+                                class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
+                                View Details
+                            </a>
+                            <a href="{{ route("properties.edit", $property) }}"
+                                class="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
+                                Edit
+                            </a>
+                            <a href="{{ route("properties.rooms.index", $property) }}"
+                                class="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-900">
+                                Manage Rooms
+                            </a>
+                        </div>
                     </div>
                 </div>
             @empty

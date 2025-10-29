@@ -11,7 +11,8 @@
         </div>
 
         <div class="rounded-2xl border border-slate-200/50 bg-white/80 p-8 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
-            <form action="{{ route("properties.update", $property) }}" method="POST" class="space-y-6">
+            <form action="{{ route("properties.update", $property) }}" method="POST" enctype="multipart/form-data"
+                class="space-y-6">
                 @csrf
                 @method("PUT")
 
@@ -48,6 +49,30 @@
                         placeholder="0" required>
                     <p class="text-sm text-slate-500">Enter the total number of bathrooms (including half baths)</p>
                     @error("baths")
+                        <p class="text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Current Header Image -->
+                @if ($property->headerImage)
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-700">Current Header Image</label>
+                        <div class="overflow-hidden rounded-lg border border-slate-200">
+                            <img src="{{ asset("storage/" . $property->headerImage->uri) }}" alt="Current header image"
+                                class="h-48 w-full object-cover">
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Header Image Upload -->
+                <div class="space-y-2">
+                    <label for="header_image" class="block text-sm font-semibold text-slate-700">Update Header Image</label>
+                    <input type="file" id="header_image" name="header_image" accept="image/*"
+                        class="@error("header_image") border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 transition-all duration-200 focus:border-slate-500 focus:ring-2 focus:ring-slate-500/20">
+                    <p class="text-sm text-slate-500">
+                        {{ $property->headerImage ? "Upload a new image to replace the current one" : "Upload a header image for the property (optional)" }}
+                    </p>
+                    @error("header_image")
                         <p class="text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

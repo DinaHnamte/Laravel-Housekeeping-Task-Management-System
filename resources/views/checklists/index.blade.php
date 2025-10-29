@@ -1,5 +1,7 @@
 @extends("layouts.sidebar")
 
+@section("title", "Checklists")
+
 @section("sidebar-content")
     <div class="space-y-6">
         <!-- Header -->
@@ -8,178 +10,121 @@
                 <h1 class="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-3xl font-bold text-transparent">
                     Checklists
                 </h1>
-                <p class="mt-2 text-slate-600">Manage and view all checklists</p>
+                <p class="mt-2 text-sm text-slate-600">
+                    @if (auth()->user()->hasRole("Admin"))
+                        View all cleaning assignments and progress
+                    @elseif(auth()->user()->hasRole("Owner"))
+                        View your property cleaning assignments and progress
+                    @else
+                        View your assigned cleaning tasks
+                    @endif
+                </p>
             </div>
-            @can("create:checklists")
-                <a href="{{ route("checklists.create") }}"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Create Checklist
-                </a>
-            @endcan
         </div>
 
-        <!-- Success Message -->
-        @if (session("success"))
-            <div class="rounded-xl border border-green-200 bg-green-50 p-4">
-                <div class="flex items-center">
-                    <svg class="mr-3 h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p class="font-medium text-green-800">{{ session("success") }}</p>
-                </div>
-            </div>
-        @endif
-
-        <!-- Checklists Table -->
-        <div
-            class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50">
-            <div class="p-6">
-                @if ($checklists->count() > 0)
-                    <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-slate-200">
-                            <thead class="bg-slate-50">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Property</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Room</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Task</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        User</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Status</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Start Time</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        End Time</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 bg-white">
-                                @foreach ($checklists as $checklist)
-                                    <tr class="transition-colors duration-150 hover:bg-slate-50">
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">
-                                            {{ $checklist->property->name }}
-                                        </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                                            {{ $checklist->room->name }}
-                                        </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                                            {{ $checklist->task->task }}
-                                        </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                                            {{ $checklist->user->name }}
-                                        </td>
-                                        <td class="whitespace-nowrap px-6 py-4">
-                                            @if ($checklist->checked_off)
-                                                <span
-                                                    class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                                                    <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    Completed
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">
-                                                    <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    In Progress
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                                            {{ $checklist->time_date_stamp_start ? $checklist->time_date_stamp_start->format("M d, g:i A") : "-" }}
-                                        </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                                            {{ $checklist->time_date_stamp_end ? $checklist->time_date_stamp_end->format("M d, g:i A") : "-" }}
-                                        </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                                            <div class="flex items-center space-x-2">
-                                                <a href="{{ route("checklists.show", $checklist) }}"
-                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition-colors duration-200 hover:bg-blue-200">
-                                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </a>
-                                                @can("edit:checklists")
-                                                    <a href="{{ route("checklists.edit", $checklist) }}"
-                                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors duration-200 hover:bg-slate-200">
-                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                            stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                        </svg>
-                                                    </a>
-                                                @endcan
-                                                @can("delete:checklists")
-                                                    <form action="{{ route("checklists.destroy", $checklist) }}" method="POST"
-                                                        class="inline">
-                                                        @csrf
-                                                        @method("DELETE")
-                                                        <button type="submit"
-                                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors duration-200 hover:bg-red-200"
-                                                            onclick="return confirm('Are you sure you want to delete this checklist?')">
-                                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                                stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                @endcan
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+        <!-- Checklists Grid -->
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @forelse ($checklists as $checklist)
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50">
+                    <!-- Checklist Header -->
+                    <div class="mb-4">
+                        <h3 class="truncate text-lg font-semibold text-slate-900">
+                            {{ $checklist->property->name ?? "Unknown Property" }}</h3>
+                        <p class="text-sm text-slate-500">
+                            @if ($checklist->user)
+                                Assigned to {{ $checklist->user->name }}
+                            @else
+                                No housekeeper assigned
+                            @endif
+                        </p>
                     </div>
 
-                    <!-- Pagination -->
-                    @if ($checklists->hasPages())
-                        <div class="mt-6 flex items-center justify-center">
-                            {{ $checklists->links() }}
+                    <!-- Checklist Details -->
+                    <div class="mb-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-600">Date:</span>
+                            <span
+                                class="text-sm font-medium text-slate-900">{{ $checklist->assignment_date->format("M d, Y") }}</span>
                         </div>
-                    @endif
-                @else
+                        @if ($checklist->tasks->count() > 0)
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-600">Tasks:</span>
+                                <span class="text-sm font-medium text-slate-900">{{ $checklist->tasks->count() }}
+                                    assigned</span>
+                            </div>
+                        @endif
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-600">Status:</span>
+                            <span
+                                class="@if ($checklist->status === "completed") bg-green-100 text-green-800
+                                @elseif($checklist->status === "in_progress") bg-blue-100 text-blue-800
+                                @elseif($checklist->status === "pending") bg-yellow-100 text-yellow-800
+                                @else bg-red-100 text-red-800 @endif inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
+                                {{ ucfirst($checklist->status) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex space-x-2">
+                        <a href="{{ route("checklists.show", $checklist) }}"
+                            class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
+                            View
+                        </a>
+
+                        @if (auth()->user()->hasRole("Housekeeper") && $checklist->status === "pending")
+                            <a href="{{ route("checklists.start", $checklist) }}"
+                                class="flex-1 rounded-lg bg-green-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-green-700">
+                                Start Checklist
+                            </a>
+                        @endif
+
+                        @if (auth()->user()->hasRole("Admin") || auth()->user()->hasRole("Owner"))
+                            <a href="{{ route("checklists.edit", $checklist) }}"
+                                class="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
+                                Edit
+                            </a>
+                            <form action="{{ route("checklists.destroy", $checklist) }}" method="POST" class="flex-1">
+                                @csrf
+                                @method("DELETE")
+                                <button type="submit"
+                                    class="w-full rounded-lg bg-red-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-red-700"
+                                    onclick="return confirm('Are you sure you want to delete this checklist?')">
+                                    Delete
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-full">
                     <div class="py-12 text-center">
                         <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-slate-900">No checklists found</h3>
-                        <p class="mt-1 text-sm text-slate-500">Start by creating your first checklist.</p>
+                        <h3 class="mt-2 text-sm font-medium text-slate-900">No checklists</h3>
+                        <p class="mt-1 text-sm text-slate-500">
+                            @if (auth()->user()->hasRole("Housekeeper"))
+                                You don't have any checklists yet.
+                            @else
+                                Get started by creating a new checklist.
+                            @endif
+                        </p>
                     </div>
-                @endif
-            </div>
+                </div>
+            @endforelse
         </div>
+
+        <!-- Pagination -->
+        @if ($checklists->hasPages())
+            <div class="flex justify-center">
+                <div class="rounded-xl bg-white/80 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-sm">
+                    {{ $checklists->links() }}
+                </div>
+            </div>
+        @endif
     </div>
 @endsection

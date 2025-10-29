@@ -4,45 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Checklist extends Model
 {
+    protected $table = 'checklists';
+
     protected $fillable = [
-        'task_id',
         'property_id',
-        'room_id',
         'user_id',
-        'time_date_stamp_start',
-        'time_date_stamp_end',
-        'checked_off',
+        'assignment_id',
+        'assignment_date',
+        'start_time',
+        'end_time',
+        'status',
+        'workflow_stage',
+        'verified_latitude',
+        'verified_longitude',
+        'gps_verified_at',
         'notes',
-        'image_link',
-        'latitude',
-        'longitude',
     ];
 
     protected $casts = [
-        'time_date_stamp_start' => 'datetime',
-        'time_date_stamp_end' => 'datetime',
-        'checked_off' => 'boolean',
-        'latitude' => 'float',
-        'longitude' => 'float',
+        'assignment_date' => 'date',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'gps_verified_at' => 'datetime',
+        'verified_latitude' => 'decimal:8',
+        'verified_longitude' => 'decimal:8',
     ];
-
-    public function task(): BelongsTo
-    {
-        return $this->belongsTo(Task::class);
-    }
 
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);
-    }
-
-    public function room(): BelongsTo
-    {
-        return $this->belongsTo(Room::class);
     }
 
     public function user(): BelongsTo
@@ -50,7 +44,25 @@ class Checklist extends Model
         return $this->belongsTo(User::class);
     }
 
-    // public function Image() : HasMany {
-    //     return $this->hasMany()
-    // }
+    public function tasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'checklist_tasks')
+            ->withPivot('completed', 'completed_at', 'notes', 'photo', 'latitude', 'longitude')
+            ->withTimestamps();
+    }
+
+    public function completedTasks()
+    {
+        return $this->tasks()->where('checklist_tasks.completed', true);
+    }
+
+    public function pendingTasks()
+    {
+        return $this->tasks()->where('checklist_tasks.completed', false);
+    }
+
+    public function roomPhotos()
+    {
+        return $this->hasMany(RoomPhoto::class);
+    }
 }

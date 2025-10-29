@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('uri');
             $table->string('name')->nullable();
+            $table->string('imageable_type')->nullable();
+            $table->unsignedBigInteger('imageable_id')->nullable();
             $table->timestamps();
         });
     }

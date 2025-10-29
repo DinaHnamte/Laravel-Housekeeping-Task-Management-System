@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Assignment;
+use App\Models\Checklist;
 use App\Models\Property;
 use App\Models\Room;
 use App\Models\Task;
@@ -178,14 +178,15 @@ class DatabaseSeeder extends Seeder
             'is_default' => true,
         ]);
 
-        // Create Assignment
-        Assignment::create([
+        // Create Checklist (Assignment)
+        Checklist::create([
             'property_id' => $property1->id,
             'user_id' => $housekeeper->id,
             'assignment_date' => now()->addDay(),
             'start_time' => now()->addDay()->setTime(9, 0),
             'end_time' => now()->addDay()->setTime(17, 0),
             'status' => 'pending',
+            'workflow_stage' => 'room_checklist',
             'notes' => 'Regular cleaning assignment',
         ]);
     }

@@ -156,30 +156,6 @@
                         @endif
 
                         @if (!auth()->user()->hasRole("Housekeeper"))
-                            <!-- Assignments Section -->
-                            <div class="space-y-2">
-                                <div
-                                    class="rounded-lg bg-gray-50/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                                    Assignments
-                                </div>
-                                <a href="{{ route("assignments.index") }}"
-                                    class="{{ request()->routeIs("assignments.*") ? "bg-slate-100 text-slate-900 border-l-4 border-slate-600" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900" }} group flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200">
-                                    <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    All Assignments
-                                </a>
-                                <a href="{{ route("assignments.create") }}"
-                                    class="{{ request()->routeIs("assignments.create") ? "bg-slate-100 text-slate-900 border-l-4 border-slate-600" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900" }} group flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200">
-                                    <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Create Assignment
-                                </a>
-                            </div>
-
                             <!-- Checklists Section -->
                             <div class="space-y-2">
                                 <div
@@ -190,7 +166,7 @@
                                     class="{{ request()->routeIs("checklists.*") ? "bg-slate-100 text-slate-900 border-l-4 border-slate-600" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900" }} group flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200">
                                     <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                     All Checklists
                                 </a>
@@ -200,7 +176,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
-                                    Start Checklist
+                                    Create Checklist
                                 </a>
                             </div>
                         @endif
@@ -364,29 +340,6 @@
                         @endif
 
                         @if (!auth()->user()->hasRole("Housekeeper"))
-                            <!-- Assignments Section -->
-                            <div class="space-y-1">
-                                <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                                    Assignments
-                                </div>
-                                <a href="{{ route("assignments.index") }}"
-                                    class="{{ request()->routeIs("assignments.*") ? "bg-slate-100 text-slate-900 border-l-4 border-slate-600" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900" }} group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200">
-                                    <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    All Assignments
-                                </a>
-                                <a href="{{ route("assignments.create") }}"
-                                    class="{{ request()->routeIs("assignments.create") ? "bg-slate-100 text-slate-900 border-l-4 border-slate-600" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900" }} group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200">
-                                    <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Create Assignment
-                                </a>
-                            </div>
-
                             <!-- Checklists Section -->
                             <div class="space-y-1">
                                 <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">
@@ -396,7 +349,7 @@
                                     class="{{ request()->routeIs("checklists.*") ? "bg-slate-100 text-slate-900 border-l-4 border-slate-600" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900" }} group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200">
                                     <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                     All Checklists
                                 </a>
@@ -406,7 +359,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
-                                    Start Checklist
+                                    Create Checklist
                                 </a>
                             </div>
                         @endif

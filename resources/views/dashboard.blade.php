@@ -133,26 +133,26 @@
             @if (isset($recentActivities["recent_assignments"]) || isset($recentActivities["my_assignments"]))
                 <div
                     class="rounded-xl border border-slate-200/50 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-sm">
-                    <h3 class="mb-4 text-lg font-semibold text-slate-900">Recent Assignments</h3>
+                    <h3 class="mb-4 text-lg font-semibold text-slate-900">Recent Checklists</h3>
                     <div class="space-y-3">
-                        @foreach ($recentActivities["recent_assignments"] ?? ($recentActivities["my_assignments"] ?? []) as $assignment)
+                        @foreach ($recentActivities["recent_assignments"] ?? ($recentActivities["my_assignments"] ?? []) as $checklist)
                             <div class="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                                 <div>
                                     <p class="font-medium text-slate-900">
-                                        {{ $assignment->property->name ?? "Unknown Property" }}</p>
+                                        {{ $checklist->property->name ?? "Unknown Property" }}</p>
                                     <p class="text-sm text-slate-500">
-                                        {{ $assignment->assignment_date->format("M d, Y") }}
-                                        @if ($assignment->user)
-                                            - {{ $assignment->user->name }}
+                                        {{ $checklist->assignment_date->format("M d, Y") }}
+                                        @if ($checklist->user)
+                                            - {{ $checklist->user->name }}
                                         @endif
                                     </p>
                                 </div>
                                 <span
-                                    class="@if ($assignment->status === "completed") bg-green-100 text-green-800
-                                    @elseif($assignment->status === "in_progress") bg-blue-100 text-blue-800
-                                    @elseif($assignment->status === "pending") bg-yellow-100 text-yellow-800
+                                    class="@if ($checklist->status === "completed") bg-green-100 text-green-800
+                                    @elseif($checklist->status === "in_progress") bg-blue-100 text-blue-800
+                                    @elseif($checklist->status === "pending") bg-yellow-100 text-yellow-800
                                     @else bg-red-100 text-red-800 @endif inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
-                                    {{ ucfirst($assignment->status) }}
+                                    {{ ucfirst($checklist->status) }}
                                 </span>
                             </div>
                         @endforeach
@@ -189,26 +189,26 @@
                 @endif
 
                 @if (auth()->user()->role === "Admin" || auth()->user()->role === "Owner")
-                    <a href="{{ route("assignments.create") }}"
+                    <a href="{{ route("checklists.create") }}"
                         class="flex items-center rounded-lg border border-slate-200 p-4 transition-colors hover:bg-slate-50">
                         <svg class="mr-3 h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span class="font-medium text-slate-900">Create Assignment</span>
+                        <span class="font-medium text-slate-900">Create Checklist</span>
                     </a>
                 @endif
 
-                @if (auth()->user()->role === "Housekeeper")
-                    <a href="{{ route("checklists.create") }}"
+                @if (auth()->user()->hasRole("Housekeeper"))
+                    <a href="{{ route("checklists.index") }}"
                         class="flex items-center rounded-lg border border-slate-200 p-4 transition-colors hover:bg-slate-50">
                         <svg class="mr-3 h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
-                        <span class="font-medium text-slate-900">Start Checklist</span>
+                        <span class="font-medium text-slate-900">My Checklists</span>
                     </a>
                 @endif
             </div>

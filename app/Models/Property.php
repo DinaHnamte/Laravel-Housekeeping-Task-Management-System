@@ -6,14 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Property extends Model
 {
     protected $fillable = [
         'name',
+        'address',
+        'latitude',
+        'longitude',
+        'gps_radius_meters',
         'beds',
         'baths',
         'user_id',
+        'header_image_id',
     ];
 
     public function user(): BelongsTo
@@ -36,8 +42,13 @@ class Property extends Model
         return $this->hasMany(Checklist::class);
     }
 
-    public function assignments(): HasMany
+    public function headerImage(): BelongsTo
     {
-        return $this->hasMany(Assignment::class);
+        return $this->belongsTo(Image::class, 'header_image_id');
+    }
+
+    public function images(): MorphMany
+    {
+        return $this->morphMany(Image::class, 'imageable');
     }
 }

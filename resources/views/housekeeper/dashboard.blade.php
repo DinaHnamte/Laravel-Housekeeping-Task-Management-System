@@ -98,14 +98,27 @@
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span class="text-sm text-slate-600">
-                                    {{ $assignment->start_time ? $assignment->start_time->format("g:i A") : "No time set" }}
-                                    @if ($assignment->end_time)
-                                        - {{ $assignment->end_time->format("g:i A") }}
+                                    @if ($assignment->start_time)
+                                        @if (is_string($assignment->start_time))
+                                            {{ \Carbon\Carbon::parse($assignment->start_time)->format("g:i A") }}
+                                        @else
+                                            {{ $assignment->start_time->format("g:i A") }}
+                                        @endif
+                                        @if ($assignment->end_time)
+                                            -
+                                            @if (is_string($assignment->end_time))
+                                                {{ \Carbon\Carbon::parse($assignment->end_time)->format("g:i A") }}
+                                            @else
+                                                {{ $assignment->end_time->format("g:i A") }}
+                                            @endif
+                                        @endif
+                                    @else
+                                        No time set
                                     @endif
                                 </span>
                             </div>
 
-                            <a href="{{ route("housekeeper.tasks", $assignment) }}"
+                            <a href="{{ route("checklists.start", $assignment) }}"
                                 class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-slate-800">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -147,14 +160,19 @@
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <span class="text-sm text-slate-600">
-                                    {{ $assignment->assignment_date->format("M d, Y") }}
+                                    {{ $assignment->assignment_date ? $assignment->assignment_date->format("M d, Y") : "No date set" }}
                                     @if ($assignment->start_time)
-                                        at {{ $assignment->start_time->format("g:i A") }}
+                                        at
+                                        @if (is_string($assignment->start_time))
+                                            {{ \Carbon\Carbon::parse($assignment->start_time)->format("g:i A") }}
+                                        @else
+                                            {{ $assignment->start_time->format("g:i A") }}
+                                        @endif
                                     @endif
                                 </span>
                             </div>
 
-                            <a href="{{ route("housekeeper.tasks", $assignment) }}"
+                            <a href="{{ route("checklists.start", $assignment) }}"
                                 class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -171,7 +189,7 @@
         @endif
 
         <!-- Recent Progress -->
-        @if ($checklists->count() > 0)
+        @if ($recentChecklists && $recentChecklists->count() > 0)
             <div class="space-y-4">
                 <h2 class="text-xl font-semibold text-slate-900">Recent Progress</h2>
 
@@ -186,20 +204,20 @@
                                         Property</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Room</th>
+                                        Date</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Task</th>
+                                        Tasks</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                                         Status</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        Completed</th>
+                                        Progress</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 bg-white">
-                                @foreach ($checklists as $checklist)
+                                @foreach ($recentChecklists as $checklist)
                                     <tr class="hover:bg-slate-50">
                                         <td class="whitespace-nowrap px-6 py-4">
                                             <div class="flex items-center">
@@ -219,10 +237,13 @@
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                                            {{ $checklist->room->name }}</td>
-                                        <td class="px-6 py-4 text-sm text-slate-900">{{ $checklist->task->task }}</td>
+                                            {{ $checklist->assignment_date ? $checklist->assignment_date->format("M d, Y") : "-" }}
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-slate-900">
+                                            {{ $checklist->tasks->count() }} tasks
+                                        </td>
                                         <td class="whitespace-nowrap px-6 py-4">
-                                            @if ($checklist->checked_off)
+                                            @if ($checklist->status === "completed")
                                                 <span
                                                     class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
                                                     <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -232,7 +253,7 @@
                                                     </svg>
                                                     Completed
                                                 </span>
-                                            @else
+                                            @elseif ($checklist->status === "in_progress")
                                                 <span
                                                     class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
                                                     <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -242,18 +263,20 @@
                                                     </svg>
                                                     In Progress
                                                 </span>
+                                            @else
+                                                <span
+                                                    class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                                                    Pending
+                                                </span>
                                             @endif
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                                            @if ($checklist->time_date_stamp_end)
-                                                @if (is_string($checklist->time_date_stamp_end))
-                                                    {{ \Carbon\Carbon::parse($checklist->time_date_stamp_end)->format("M d, g:i A") }}
-                                                @else
-                                                    {{ $checklist->time_date_stamp_end->format("M d, g:i A") }}
-                                                @endif
-                                            @else
-                                                -
-                                            @endif
+                                            @php
+                                                $completed = $checklist->completedTasks()->count();
+                                                $total = $checklist->tasks->count();
+                                                $percent = $total > 0 ? round(($completed / $total) * 100) : 0;
+                                            @endphp
+                                            {{ $completed }}/{{ $total }} ({{ $percent }}%)
                                         </td>
                                     </tr>
                                 @endforeach

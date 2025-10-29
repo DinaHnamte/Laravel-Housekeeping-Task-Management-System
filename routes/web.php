@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\AssignmentController;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\TaskController;
@@ -76,36 +77,36 @@ Route::prefix('properties')->middleware('permission:view:properties')->group(fun
     Route::put('/update/{property}', [PropertyController::class, 'update'])->middleware('permission:edit:properties')->name('properties.update');
 });
 
-    // Assignments
-    Route::prefix('assignments')->group(function () {
-        Route::get('/', [AssignmentController::class, 'index'])->name('assignments.index');
-        Route::get('/create', [AssignmentController::class, 'create'])->middleware('permission:create:housekeepers')->name('assignments.create');
-        Route::post('/store', [AssignmentController::class, 'store'])->middleware('permission:create:housekeepers')->name('assignments.store');
-        Route::get('/{assignment}', [AssignmentController::class, 'show'])->name('assignments.show');
-        Route::get('/edit/{assignment}', [AssignmentController::class, 'edit'])->middleware('permission:edit:housekeepers')->name('assignments.edit');
-        Route::put('/update/{assignment}', [AssignmentController::class, 'update'])->middleware('permission:edit:housekeepers')->name('assignments.update');
-        Route::delete('/{assignment}', [AssignmentController::class, 'destroy'])->middleware('permission:delete:housekeepers')->name('assignments.destroy');
+    // Checklists
+    Route::prefix('checklists')->middleware('permission:view:checklists')->group(function () {
+        Route::get('/', [ChecklistController::class, 'index'])->name('checklists.index');
+        Route::get('/create', [ChecklistController::class, 'create'])->middleware('permission:create:housekeepers')->name('checklists.create');
+        Route::post('/store', [ChecklistController::class, 'store'])->middleware('permission:create:housekeepers')->name('checklists.store');
+        Route::post('/tasks', [ChecklistController::class, 'storeTasks'])->middleware('permission:submit:checklists')->name('checklists.tasks.store');
+        Route::get('/start/{checklist}', [ChecklistController::class, 'start'])->middleware('permission:submit:checklists')->name('checklists.start');
+        Route::post('/verify-gps/{checklist}', [ChecklistController::class, 'verifyGps'])->middleware('permission:submit:checklists')->name('checklists.verify-gps');
+        Route::post('/next-stage/{checklist}', [ChecklistController::class, 'nextStage'])->middleware('permission:submit:checklists')->name('checklists.next-stage');
+        Route::post('/{checklist}/room/{room}/photos', [ChecklistController::class, 'uploadRoomPhotos'])->middleware('permission:submit:checklists')->name('checklists.upload-photos');
+        Route::get('/{checklist}/summary', [ChecklistController::class, 'summary'])->middleware('permission:submit:checklists')->name('checklists.summary');
+        Route::get('/edit/{checklist}', [ChecklistController::class, 'edit'])->middleware('permission:edit:housekeepers')->name('checklists.edit');
+        Route::put('/update/{checklist}', [ChecklistController::class, 'update'])->middleware('permission:edit:housekeepers')->name('checklists.update');
+        Route::get('/{checklist}/room/{room}', [ChecklistController::class, 'showRoomTasks'])->middleware('permission:submit:checklists')->name('checklists.room');
+        Route::get('/{checklist}', [ChecklistController::class, 'show'])->name('checklists.show');
+        Route::delete('/{checklist}', [ChecklistController::class, 'destroy'])->middleware('permission:delete:housekeepers')->name('checklists.destroy');
+    });
+
+    // Calendar
+    Route::prefix('calendar')->middleware('permission:view:calendar')->group(function () {
+        Route::get('/', [CalendarController::class, 'index'])->name('calendar.index');
     });
 
     // Housekeeper specific routes
     Route::prefix('housekeeper')->middleware('auth')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\HousekeeperController::class, 'dashboard'])->name('housekeeper.dashboard');
-        Route::get('/tasks/{assignment}', [App\Http\Controllers\HousekeeperController::class, 'showTasks'])->name('housekeeper.tasks');
+        Route::get('/tasks/{checklist}', [App\Http\Controllers\HousekeeperController::class, 'showTasks'])->name('housekeeper.tasks');
     });
 
 
-    // Checklists
-    Route::prefix('checklists')->middleware('permission:view:checklists')->group(function () {
-        Route::get('/', [ChecklistController::class, 'index'])->name('checklists.index');
-        Route::get('/create', [ChecklistController::class, 'create'])->middleware('permission:submit:checklists')->name('checklists.create');
-        Route::get('/start/{assignment}', [ChecklistController::class, 'startFromAssignment'])->middleware('permission:submit:checklists')->name('checklists.start');
-        Route::get('/room/{assignment}/{room}', [ChecklistController::class, 'showRoomTasks'])->middleware('permission:submit:checklists')->name('checklists.room');
-        Route::post('/store', [ChecklistController::class, 'store'])->middleware('permission:submit:checklists')->name('checklists.store');
-        Route::get('/{checklist}', [ChecklistController::class, 'show'])->name('checklists.show');
-        Route::get('/edit/{checklist}', [ChecklistController::class, 'edit'])->middleware('permission:edit:checklists')->name('checklists.edit');
-        Route::put('/update/{checklist}', [ChecklistController::class, 'update'])->middleware('permission:edit:checklists')->name('checklists.update');
-        Route::delete('/{checklist}', [ChecklistController::class, 'destroy'])->middleware('permission:edit:checklists')->name('checklists.destroy');
-    });
 
     // Roles Management (Admin only)
     Route::prefix('roles')->middleware('auth')->group(function () {
@@ -132,10 +133,21 @@ Route::prefix('properties')->middleware('permission:view:properties')->group(fun
 
     // API Routes for AJAX
     Route::prefix('api')->group(function () {
-        Route::get('/assignments/{assignment}/tasks', function($assignmentId) {
-            $assignment = \App\Models\Assignment::with('property.rooms.tasks')->findOrFail($assignmentId);
-            $tasks = $assignment->property->rooms->flatMap->tasks;
+        Route::get('/checklists/{checklist}/tasks', function($checklistId) {
+            $checklist = \App\Models\Checklist::with('property.rooms.tasks')->findOrFail($checklistId);
+            $tasks = $checklist->property->rooms->flatMap->tasks;
             return response()->json(['tasks' => $tasks]);
         });
+
+        // Property with rooms and tasks
+        Route::get('/properties/{property}/tasks', function(\App\Models\Property $property) {
+            $property->load(['rooms.tasks']);
+            return response()->json(['property' => $property]);
+        });
+
+        // Image upload routes
+        Route::post('/images/upload', [ImageController::class, 'upload'])->name('api.images.upload');
+        Route::delete('/images/{image}', [ImageController::class, 'delete'])->name('api.images.delete');
+        Route::get('/images/{image}', [ImageController::class, 'show'])->name('api.images.show');
     });
 }); // End of auth middleware group
