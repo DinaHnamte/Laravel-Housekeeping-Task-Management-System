@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'geocoding' => [
+        'provider' => env('GEOCODING_PROVIDER', 'opencage'), // opencage or nominatim
+        'opencage' => [
+            'api_key' => env('OPENCAGE_API_KEY'),
+        ],
+        'nominatim' => [
+            'url' => env('NOMINATIM_URL', 'https://nominatim.openstreetmap.org'),
+        ],
+    ],
+
 ];

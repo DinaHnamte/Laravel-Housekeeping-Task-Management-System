@@ -114,8 +114,7 @@
                             <div class="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                                 <div>
                                     <p class="font-medium text-slate-900">{{ $property->name }}</p>
-                                    <p class="text-sm text-slate-500">{{ $property->beds }} beds, {{ $property->baths }}
-                                        baths</p>
+                                    <p class="text-sm text-slate-500">{{ Str::limit($property->address, 50) ?? 'No address' }}</p>
                                 </div>
                                 <a href="{{ route("properties.show", $property) }}"
                                     class="text-slate-600 hover:text-slate-900">

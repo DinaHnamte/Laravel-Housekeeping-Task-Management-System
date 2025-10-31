@@ -49,44 +49,31 @@
                         </div>
 
                         <!-- Property Stats -->
-                        <div class="mb-4 grid grid-cols-3 gap-2 sm:mb-6 sm:gap-4">
-                            <div class="text-center">
-                                <div
-                                    class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
-                                    <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
+                        <div class="mb-4 space-y-2 sm:mb-6">
+                            @if ($property->address)
+                                <div class="flex items-start gap-2">
+                                    <svg class="mt-0.5 h-4 w-4 shrink-0 text-slate-500 sm:h-5 sm:w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                    </svg>
-                                </div>
-                                <div class="text-lg font-bold text-slate-900 sm:text-2xl">{{ $property->beds ?? "0" }}</div>
-                                <div class="text-xs text-slate-500">Beds</div>
-                            </div>
-                            <div class="text-center">
-                                <div
-                                    class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
-                                    <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M10.5 3L12 2l1.5 1H21v6H3V3h7.5z" />
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
+                                    <span
+                                        class="text-xs text-slate-600 sm:text-sm">{{ Str::limit($property->address, 60) }}</span>
                                 </div>
-                                <div class="text-lg font-bold text-slate-900 sm:text-2xl">{{ $property->baths ?? "0" }}
-                                </div>
-                                <div class="text-xs text-slate-500">Baths</div>
-                            </div>
-                            <div class="text-center">
-                                <div
-                                    class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 sm:mb-2 sm:h-12 sm:w-12">
-                                    <svg class="h-4 w-4 text-slate-600 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
+                            @endif
+                            <div class="flex items-center justify-start gap-4">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
+                                    <span
+                                        class="text-xs font-semibold text-slate-900">{{ isset($property->rooms) ? $property->rooms->count() : "0" }}
+                                        Rooms</span>
                                 </div>
-                                <div class="text-lg font-bold text-slate-900 sm:text-2xl">
-                                    {{ isset($property->rooms) ? $property->rooms->count() : "0" }}</div>
-                                <div class="text-xs text-slate-500">Rooms</div>
                             </div>
                         </div>
 

@@ -6,12 +6,20 @@ use App\Models\Property;
 use App\Models\Room;
 use App\Models\Task;
 use App\Models\Image;
+use App\Services\GeocodingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PropertyController extends Controller
 {
+    protected $geocodingService;
+
+    public function __construct(GeocodingService $geocodingService)
+    {
+        $this->geocodingService = $geocodingService;
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -41,16 +49,65 @@ class PropertyController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'street' => 'nullable|string|max:255',
+            'house_number' => 'nullable|string|max:50',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'postcode' => 'nullable|string|max:50',
+            'country' => 'nullable|string|max:255',
             'gps_radius_meters' => 'nullable|integer|min:10|max:1000',
-            'beds' => 'required|numeric|min:1',
-            'baths' => 'required|numeric|min:1',
             'header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Assign property to the current user (Owner)
         $validated['user_id'] = auth()->id();
+
+        // Build address from individual fields if address is not provided
+        if (empty($validated['address'])) {
+            $parts = [
+                $validated['house_number'] ?? null,
+                $validated['street'] ?? null,
+                $validated['city'] ?? null,
+                $validated['state'] ?? null,
+                $validated['postcode'] ?? null,
+                $validated['country'] ?? null,
+            ];
+            $validated['address'] = implode(', ', array_filter($parts));
+        }
+
+        // Build address for geocoding (without house number for better results)
+        $addressForGeocoding = $validated['address'];
+        if (!empty($validated['house_number'])) {
+            // Remove house number from the beginning of the address for geocoding
+            $addressForGeocoding = preg_replace('/^' . preg_quote($validated['house_number'], '/') . ',\s*/', '', $validated['address']);
+        }
+
+        // Geocode the address to get latitude and longitude (without house number)
+        if (!empty($addressForGeocoding)) {
+            $geocodeResult = $this->geocodingService->geocodeWithDetails($addressForGeocoding);
+            if ($geocodeResult) {
+                $validated['latitude'] = $geocodeResult['latitude'];
+                $validated['longitude'] = $geocodeResult['longitude'];
+
+                // Only override address components if they weren't provided by the user
+                if (isset($geocodeResult['address_components'])) {
+                    $components = $geocodeResult['address_components'];
+                    $validated['street'] = $validated['street'] ?? $components['street'];
+                    $validated['house_number'] = $validated['house_number'] ?? $components['house_number'];
+                    $validated['neighborhood'] = $components['neighborhood'];
+                    $validated['suburb'] = $components['suburb'];
+                    $validated['city'] = $validated['city'] ?? $components['city'];
+                    $validated['state'] = $validated['state'] ?? $components['state'];
+                    $validated['postcode'] = $validated['postcode'] ?? $components['postcode'];
+                    $validated['country'] = $validated['country'] ?? $components['country'];
+                }
+            }
+        }
+
+        // Set default GPS radius if not provided
+        if (!isset($validated['gps_radius_meters'])) {
+            $validated['gps_radius_meters'] = 50;
+        }
 
         // Handle header image upload
         if ($request->hasFile('header_image')) {
@@ -87,13 +144,62 @@ class PropertyController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'street' => 'nullable|string|max:255',
+            'house_number' => 'nullable|string|max:50',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'postcode' => 'nullable|string|max:50',
+            'country' => 'nullable|string|max:255',
             'gps_radius_meters' => 'nullable|integer|min:10|max:1000',
-            'beds' => 'required|numeric|min:1',
-            'baths' => 'required|numeric|min:1',
             'header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Build address from individual fields if address is not provided
+        if (empty($validated['address'])) {
+            $parts = [
+                $validated['house_number'] ?? null,
+                $validated['street'] ?? null,
+                $validated['city'] ?? null,
+                $validated['state'] ?? null,
+                $validated['postcode'] ?? null,
+                $validated['country'] ?? null,
+            ];
+            $validated['address'] = implode(', ', array_filter($parts));
+        }
+
+        // Build address for geocoding (without house number for better results)
+        $addressForGeocoding = $validated['address'];
+        if (!empty($validated['house_number'])) {
+            // Remove house number from the beginning of the address for geocoding
+            $addressForGeocoding = preg_replace('/^' . preg_quote($validated['house_number'], '/') . ',\s*/', '', $validated['address']);
+        }
+
+        // Geocode the address if any address fields have changed (without house number)
+        if (!empty($addressForGeocoding)) {
+            $geocodeResult = $this->geocodingService->geocodeWithDetails($addressForGeocoding);
+            if ($geocodeResult) {
+                $validated['latitude'] = $geocodeResult['latitude'];
+                $validated['longitude'] = $geocodeResult['longitude'];
+
+                // Only override address components if they weren't provided by the user
+                if (isset($geocodeResult['address_components'])) {
+                    $components = $geocodeResult['address_components'];
+                    $validated['street'] = $validated['street'] ?? $components['street'];
+                    $validated['house_number'] = $validated['house_number'] ?? $components['house_number'];
+                    $validated['neighborhood'] = $components['neighborhood'];
+                    $validated['suburb'] = $components['suburb'];
+                    $validated['city'] = $validated['city'] ?? $components['city'];
+                    $validated['state'] = $validated['state'] ?? $components['state'];
+                    $validated['postcode'] = $validated['postcode'] ?? $components['postcode'];
+                    $validated['country'] = $validated['country'] ?? $components['country'];
+                }
+            }
+        }
+
+        // Set default GPS radius if not provided
+        if (!isset($validated['gps_radius_meters'])) {
+            $validated['gps_radius_meters'] = 50;
+        }
 
         // Handle header image upload
         if ($request->hasFile('header_image')) {

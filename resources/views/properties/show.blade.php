@@ -30,14 +30,56 @@
                             <span
                                 class="text-lg font-medium text-slate-900">{{ $property->name ?? "Unnamed Property" }}</span>
                         </div>
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                            <span class="text-sm font-semibold text-slate-600">Number of Beds</span>
-                            <span class="text-lg font-medium text-slate-900">{{ $property->beds ?? "0" }}</span>
+
+                        <!-- Structured Address Display -->
+                        <div class="space-y-3 border-b border-slate-100 pb-4">
+                            <span class="text-sm font-semibold text-slate-600">Address</span>
+                            <div class="space-y-1 text-sm text-slate-900">
+                                @if($property->house_number || $property->street)
+                                    <div>
+                                        @if($property->house_number){{ $property->house_number }}, @endif
+                                        {{ $property->street }}
+                                    </div>
+                                @endif
+                                @if($property->neighborhood)
+                                    <div class="text-slate-700">{{ $property->neighborhood }}</div>
+                                @endif
+                                @if($property->suburb)
+                                    <div class="text-slate-700">{{ $property->suburb }}</div>
+                                @endif
+                                @if($property->city)
+                                    <div class="text-slate-700 font-medium">{{ $property->city }}</div>
+                                @endif
+                                @if($property->state || $property->postcode)
+                                    <div class="text-slate-700">
+                                        {{ $property->state }}@if($property->postcode) {{ $property->postcode }}@endif
+                                    </div>
+                                @endif
+                                @if($property->country)
+                                    <div class="text-slate-600 font-semibold">{{ $property->country }}</div>
+                                @endif
+                            </div>
                         </div>
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                            <span class="text-sm font-semibold text-slate-600">Number of Baths</span>
-                            <span class="text-lg font-medium text-slate-900">{{ $property->baths ?? "0" }}</span>
-                        </div>
+
+                        @if ($property->latitude && $property->longitude)
+                            <div class="space-y-3 border-b border-slate-100 pb-4">
+                                <span class="text-sm font-semibold text-slate-600">Coordinates</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-base font-medium text-slate-900">
+                                        {{ number_format($property->latitude, 6) }}, {{ number_format($property->longitude, 6) }}
+                                    </span>
+                                    <a href="https://www.openstreetmap.org/?mlat={{ $property->latitude }}&mlon={{ $property->longitude }}&zoom=15" 
+                                       target="_blank"
+                                       class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        View Map
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-semibold text-slate-600">Total Rooms</span>
                             <span
@@ -45,6 +87,13 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Map Display -->
+                @if ($property->latitude && $property->longitude)
+                    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200/50 bg-white/80 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
+                        <div class="h-64 w-full" id="map"></div>
+                    </div>
+                @endif
             </div>
 
             <!-- Actions Card -->
@@ -81,5 +130,23 @@
                 </div>
             </div>
         </div>
+
+        <!-- Map Script -->
+        @if ($property->latitude && $property->longitude)
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+            <script>
+                var map = L.map('map').setView([{{ $property->latitude }}, {{ $property->longitude }}], 15);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                L.marker([{{ $property->latitude }}, {{ $property->longitude }}])
+                    .addTo(map)
+                    .bindPopup('{{ $property->name }}')
+                    .openPopup();
+            </script>
+        @endif
     </div>
 @endsection

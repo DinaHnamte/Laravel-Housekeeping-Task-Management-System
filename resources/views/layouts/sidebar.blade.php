@@ -101,7 +101,9 @@
                                     </div>
                                 @endif
                             </div>
+                        @endif
 
+                        @if (auth()->user()->hasRole("Admin"))
                             <!-- Users Section -->
                             <div class="space-y-2">
                                 <div
@@ -287,7 +289,9 @@
                                     </a>
                                 </div>
                             @endif
+                        @endif
 
+                        @if (auth()->user()->hasRole("Admin"))
                             <!-- Users Section -->
                             <div class="space-y-1">
                                 <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">
