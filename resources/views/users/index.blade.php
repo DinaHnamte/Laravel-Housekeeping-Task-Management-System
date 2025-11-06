@@ -58,15 +58,28 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="mt-6 flex space-x-2">
-                        <a href="{{ route("users.edit", $user) }}"
-                            class="flex-1 rounded-lg bg-gray-100 px-3 py-2 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200">
-                            Edit
-                        </a>
-                        <a href="{{ route("users.show", $user) }}"
-                            class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
-                            View
-                        </a>
+                    <div class="mt-6 flex flex-col gap-2">
+                        <div class="flex space-x-2">
+                            <a href="{{ route("users.edit", $user) }}"
+                                class="flex-1 rounded-lg bg-gray-100 px-3 py-2 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200">
+                                Edit
+                            </a>
+                            <a href="{{ route("users.show", $user) }}"
+                                class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
+                                View
+                            </a>
+                        </div>
+                        @can('delete:users')
+                            <form action="{{ route("users.destroy", $user) }}" method="POST"
+                                onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700">
+                                    Delete User
+                                </button>
+                            </form>
+                        @endcan
                     </div>
                 </div>
             @empty

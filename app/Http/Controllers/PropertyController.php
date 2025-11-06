@@ -8,7 +8,9 @@ use App\Models\Task;
 use App\Models\Image;
 use App\Services\GeocodingService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class PropertyController extends Controller
@@ -235,6 +237,45 @@ class PropertyController extends Controller
     {
         $property->load('headerImage');
         return view('properties.show', compact('property'));
+    }
+
+    public function destroy(Property $property): RedirectResponse
+    {
+        DB::transaction(function () use ($property) {
+            // Delete header image
+            if ($property->header_image_id) {
+                $headerImage = Image::find($property->header_image_id);
+                if ($headerImage && Storage::disk('public')->exists($headerImage->uri)) {
+                    Storage::disk('public')->delete($headerImage->uri);
+                    $headerImage->delete();
+                }
+            }
+
+            // Delete all images associated with the property
+            foreach ($property->images as $image) {
+                if (Storage::disk('public')->exists($image->uri)) {
+                    Storage::disk('public')->delete($image->uri);
+                }
+                $image->delete();
+            }
+
+            // Delete all rooms (cascade will handle tasks)
+            foreach ($property->rooms as $room) {
+                // Delete tasks for each room
+                $room->tasks()->delete();
+                $room->delete();
+            }
+
+            // Delete all checklists
+            $property->checklists()->delete();
+
+            // Delete the property
+            $property->delete();
+        });
+
+        return redirect()
+            ->route('properties.index')
+            ->with('success', 'Property deleted successfully!');
     }
 
     /**

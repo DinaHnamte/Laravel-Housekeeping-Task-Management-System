@@ -83,4 +83,21 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User updated successfully!');
     }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        // Prevent deleting the current user
+        if ($user->id === auth()->id()) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'You cannot delete your own account!');
+        }
+
+        // Delete the user (cascade will handle related data if configured)
+        $user->delete();
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User deleted successfully!');
+    }
 }

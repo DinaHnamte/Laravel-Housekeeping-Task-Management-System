@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/store', [UserController::class, 'store'])->middleware('permission:create:users')->name('users.store');
         Route::get('/edit/{user}', [UserController::class, 'edit'])->middleware('permission:edit:users')->name('users.edit');
         Route::put('/update/{user}', [UserController::class, 'update'])->middleware('permission:edit:users')->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->middleware('permission:delete:users')->name('users.destroy');
         Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
     });
 
@@ -58,6 +59,7 @@ Route::prefix('properties')->middleware('permission:view:properties')->group(fun
         Route::get('/{room}', [RoomController::class, 'show'])->name('properties.rooms.show');
         Route::get('/edit/{room}', [RoomController::class, 'edit'])->middleware('permission:edit:rooms')->name('properties.rooms.edit');
         Route::put('/update/{room}', [RoomController::class, 'update'])->middleware('permission:edit:rooms')->name('properties.rooms.update');
+        Route::delete('/{room}', [RoomController::class, 'destroy'])->middleware('permission:delete:rooms')->name('properties.rooms.destroy');
 
         // Nested routes for tasks
         Route::prefix('{room}/tasks')->middleware('permission:view:tasks')->group(function () {
@@ -75,6 +77,7 @@ Route::prefix('properties')->middleware('permission:view:properties')->group(fun
     Route::get('/{property}', [PropertyController::class, 'show'])->name('properties.show');
     Route::get('/edit/{property}', [PropertyController::class, 'edit'])->middleware('permission:edit:properties')->name('properties.edit');
     Route::put('/update/{property}', [PropertyController::class, 'update'])->middleware('permission:edit:properties')->name('properties.update');
+    Route::delete('/{property}', [PropertyController::class, 'destroy'])->middleware('permission:delete:properties')->name('properties.destroy');
 });
 
     // Checklists

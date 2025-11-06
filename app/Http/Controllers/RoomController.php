@@ -56,10 +56,23 @@ class RoomController extends Controller
         return view('properties.rooms.edit', compact('room', 'property', 'properties'));
     }
 
-    public function update(Property $property, Room $room, Request $request)
+    public function update(Property $property, Room $room, Request $request): RedirectResponse
     {
         $room->update($request->except('role'));
 
         return redirect()->route('properties.rooms.index', $property)->with('success', 'Room updated successfully!');
+    }
+
+    public function destroy(Property $property, Room $room): RedirectResponse
+    {
+        // Delete all tasks for this room
+        $room->tasks()->delete();
+        
+        // Delete the room
+        $room->delete();
+
+        return redirect()
+            ->route('properties.rooms.index', $property)
+            ->with('success', 'Room deleted successfully!');
     }
 }

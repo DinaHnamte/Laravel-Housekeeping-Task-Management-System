@@ -57,19 +57,32 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex space-x-2">
-                        <a href="{{ route("properties.rooms.tasks.index", [$property, $room]) }}"
-                            class="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-blue-700">
-                            Tasks
-                        </a>
-                        <a href="{{ route("properties.rooms.edit", [$property, $room]) }}"
-                            class="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
-                            Edit
-                        </a>
-                        <a href="{{ route("properties.rooms.show", [$property, $room]) }}"
-                            class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
-                            View
-                        </a>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex space-x-2">
+                            <a href="{{ route("properties.rooms.tasks.index", [$property, $room]) }}"
+                                class="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-blue-700">
+                                Tasks
+                            </a>
+                            <a href="{{ route("properties.rooms.edit", [$property, $room]) }}"
+                                class="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
+                                Edit
+                            </a>
+                            <a href="{{ route("properties.rooms.show", [$property, $room]) }}"
+                                class="flex-1 rounded-lg bg-slate-600 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
+                                View
+                            </a>
+                        </div>
+                        @can('delete:rooms')
+                            <form action="{{ route("properties.rooms.destroy", [$property, $room]) }}" method="POST"
+                                onsubmit="return confirm('Are you sure you want to delete this room? This will also delete all tasks associated with it. This action cannot be undone.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700">
+                                    Delete Room
+                                </button>
+                            </form>
+                        @endcan
                     </div>
                 </div>
             @empty

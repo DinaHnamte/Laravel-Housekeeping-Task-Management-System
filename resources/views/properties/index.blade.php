@@ -91,6 +91,17 @@
                                 class="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-slate-900">
                                 Manage Rooms
                             </a>
+                            @can('delete:properties')
+                                <form action="{{ route("properties.destroy", $property) }}" method="POST" class="flex-1"
+                                    onsubmit="return confirm('Are you sure you want to delete this property? This will also delete all rooms, tasks, and checklists associated with it. This action cannot be undone.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700">
+                                        Delete
+                                    </button>
+                                </form>
+                            @endcan
                         </div>
                     </div>
                 </div>
