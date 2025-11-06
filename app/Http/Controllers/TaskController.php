@@ -133,6 +133,14 @@ class TaskController extends Controller
      */
     public function destroy(Property $property, Room $room, Task $task): RedirectResponse
     {
+        // Check if user is Owner and can only delete tasks from their own properties
+        $user = auth()->user();
+        if ($user->hasRole('Owner') && $property->user_id !== $user->id) {
+            return redirect()
+                ->route('properties.rooms.tasks.index', [$property, $room])
+                ->with('error', 'You can only delete tasks from your own properties.');
+        }
+
         $task->delete();
 
         return redirect()

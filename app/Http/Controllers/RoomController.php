@@ -65,6 +65,14 @@ class RoomController extends Controller
 
     public function destroy(Property $property, Room $room): RedirectResponse
     {
+        // Check if user is Owner and can only delete rooms from their own properties
+        $user = auth()->user();
+        if ($user->hasRole('Owner') && $property->user_id !== $user->id) {
+            return redirect()
+                ->route('properties.rooms.index', $property)
+                ->with('error', 'You can only delete rooms from your own properties.');
+        }
+
         // Delete all tasks for this room
         $room->tasks()->delete();
         

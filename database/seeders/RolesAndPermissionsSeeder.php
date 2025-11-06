@@ -107,16 +107,19 @@ class RolesAndPermissionsSeeder extends Seeder
                 'create:housekeepers',
                 'view:housekeepers',
                 'edit:housekeepers',
-                // Add/edit properties, rooms, and tasks
+                // Add/edit/delete properties, rooms, and tasks
                 'create:properties',
                 'view:properties',
                 'edit:properties',
+                'delete:properties',
                 'create:rooms',
                 'view:rooms',
                 'edit:rooms',
+                'delete:rooms',
                 'create:tasks',
                 'view:tasks',
                 'edit:tasks',
+                'delete:tasks',
                 // View completed checklists, photos, and calendar of scheduled cleanings
                 'view:checklists',
                 'view:images',

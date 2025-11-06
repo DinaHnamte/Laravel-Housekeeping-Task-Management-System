@@ -241,6 +241,14 @@ class PropertyController extends Controller
 
     public function destroy(Property $property): RedirectResponse
     {
+        // Check if user is Owner and can only delete their own properties
+        $user = auth()->user();
+        if ($user->hasRole('Owner') && $property->user_id !== $user->id) {
+            return redirect()
+                ->route('properties.index')
+                ->with('error', 'You can only delete your own properties.');
+        }
+
         DB::transaction(function () use ($property) {
             // Delete header image
             if ($property->header_image_id) {
